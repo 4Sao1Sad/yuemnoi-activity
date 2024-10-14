@@ -13,7 +13,7 @@ type ActivityLogRepositoryImpl struct {
 
 type ActivityLogRepository interface {
 	CreateActivityLog(logdetail string, user_id string) (*model.ActivityLog, error)
-	ViewActivityHistoryByUserId(user_id string) (*model.ActivityLog, error)
+	ViewActivityHistoryByUserId(user_id string) (*[]model.ActivityLog, error)
 }
 
 func NewActivityLogRepository(db *gorm.DB) ActivityLogRepository {
@@ -23,7 +23,7 @@ func NewActivityLogRepository(db *gorm.DB) ActivityLogRepository {
 func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id string) (*model.ActivityLog, error) {
 	activityLog := model.ActivityLog{
 		LogDetail: logdetail,
-		User:      user_id,
+		UserId:      user_id,
 		Timestamp: time.Now(),
 	}
 	err := r.db.Create(&activityLog).Error
@@ -34,7 +34,7 @@ func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id s
 	return &activityLog, nil
 }
 
-func (r ActivityLogRepositoryImpl) ViewActivityHistoryByUserId(user_id string) (*model.ActivityLog, error) {
+func (r ActivityLogRepositoryImpl) ViewActivityHistoryByUserId(user_id string) (*[]model.ActivityLog, error) {
 	var activityHistory []model.ActivityLog
 	err := r.db.Where("user = ?", user_id).Find(&activityHistory).Error
 	if err != nil {

@@ -32,7 +32,7 @@ func (g *ActivityLogGRPC) CreateActivityLogGRPC(ctx context.Context, input *pb.C
 	}
 
 	// Insert the new activity log into the repository
-	activityLog, err := g.repository.CreateActivityLog(data)
+	activityLog, err := g.repository.CreateActivityLog(data.LogDetail, data.UserId)
 	if err != nil {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -40,7 +40,6 @@ func (g *ActivityLogGRPC) CreateActivityLogGRPC(ctx context.Context, input *pb.C
 	// Create the response message with the inserted activity log
 	resp := pb.CreateActivityLogResponse{
 			ActivityLog: &pb.ActivityLog{
-					Id:        activityLog.ID, 
 					LogDetail: activityLog.LogDetail,
 					UserId:    activityLog.UserId,
 					Timestamp: timestamppb.New(activityLog.Timestamp),
@@ -59,9 +58,8 @@ func (g *ActivityLogGRPC) ViewActivityHistoryGRPC(ctx context.Context, input *pb
 
     // Convert logs from the repository format to the protobuf format
     var activityHistory []*pb.ActivityLog
-    for _, logEntry := range history {
+    for _, logEntry := range *history {
 			activityHistory = append(activityHistory, &pb.ActivityLog{
-            Id:        logEntry.ID,
             LogDetail: logEntry.LogDetail,
             UserId:    logEntry.UserId,
             Timestamp: timestamppb.New(logEntry.Timestamp),
@@ -70,7 +68,7 @@ func (g *ActivityLogGRPC) ViewActivityHistoryGRPC(ctx context.Context, input *pb
 
     // Create the response message
     resp := pb.ViewActivityHistoryResponse{
-        ActivityLogs: activityHistory,
+        ActivityLog: activityHistory,
     }
 
     return &resp, nil

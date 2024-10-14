@@ -8,8 +8,9 @@ import (
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/config"
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/handler"
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/repository"
-	"github.com/4Sao1Sad/yuemnoi-activity/proto/activity"
+	activity "github.com/4Sao1Sad/yuemnoi-activity/proto/activity"
 	"google.golang.org/grpc"
+	reflection "google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -49,6 +50,10 @@ func ServerInit(cfg *config.Config, db *gorm.DB) error {
 	activityLogServer := handler.NewActivityLogGRPC(activityLogRepo)
 	// put register server here
 	activity.RegisterActivityLogServiceServer(grpcServer, activityLogServer)
+
+	// Enable gRPC reflection for tools like grpcurl
+	reflection.Register(grpcServer)
+
 	err = grpcServer.Serve(listen)
 	if err != nil {
 		return fmt.Errorf("error to serve: %v", err.Error())
