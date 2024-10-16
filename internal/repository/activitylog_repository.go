@@ -36,7 +36,7 @@ func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id s
 
 func (r ActivityLogRepositoryImpl) ViewActivityHistoryByUserId(user_id string) (*[]model.ActivityLog, error) {
 	var activityHistory []model.ActivityLog
-	err := r.db.Where("user = ?", user_id).Find(&activityHistory).Error
+	err := r.db.Where("user_id = ?", user_id).Find(&activityHistory).Error
 	if err != nil {
 		return nil, err
 	}

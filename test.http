@@ -1,7 +1,0 @@
-POST http://localhost:8081/activitylog.ActivityLogService/ViewActivityHistory
-Content-Type: application/json
-Accept: application/json
-
-{
-  "user_id": "1234"
-}

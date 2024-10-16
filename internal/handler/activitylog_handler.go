@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"time"
 
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/model"
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/repository"
@@ -23,12 +22,11 @@ func NewActivityLogGRPC(repo repository.ActivityLogRepository) *ActivityLogGRPC 
 	}
 }
 
-func (g *ActivityLogGRPC) CreateActivityLogGRPC(ctx context.Context, input *pb.CreateActivityLogRequest) (*pb.CreateActivityLogResponse, error) {
+func (g *ActivityLogGRPC) CreateActivityLog(ctx context.Context, input *pb.CreateActivityLogRequest) (*pb.CreateActivityLogResponse, error) {
 	// Construct the activity log entry from the request input
 	data := model.ActivityLog{
 			LogDetail: input.LogDetail,
 			UserId:    input.UserId,
-			Timestamp: time.Now(),  // Current timestamp
 	}
 
 	// Insert the new activity log into the repository
@@ -49,7 +47,7 @@ func (g *ActivityLogGRPC) CreateActivityLogGRPC(ctx context.Context, input *pb.C
 	return &resp, nil
 }
 
-func (g *ActivityLogGRPC) ViewActivityHistoryGRPC(ctx context.Context, input *pb.ViewActivityHistoryRequest) (*pb.ViewActivityHistoryResponse, error) {
+func (g *ActivityLogGRPC) ViewActivityHistory(ctx context.Context, input *pb.ViewActivityHistoryRequest) (*pb.ViewActivityHistoryResponse, error) {
 	// Fetch logs by user_id from the repository
 	history, err := g.repository.ViewActivityHistoryByUserId(input.UserId)
     if err != nil {

@@ -11,23 +11,19 @@ message ActivityLog {
 		google.protobuf.Timestamp timestamp = 4;
 }
 
-// Request message for creating a new ActivityLog
 message CreateActivityLogRequest {
     string logDetail = 1;
 		string user_id = 2;       
 }
 
-// Response message for CreateActivityLog service
 message CreateActivityLogResponse {
 		ActivityLog activityLog = 1;      
 }
 
-// Request message for viewing ActivityHistory
 message ViewActivityHistoryRequest {
 		string user_id = 1;       
 }
 
-// Response message for ViewActivityHistory service
 message ViewActivityHistoryResponse {
 		repeated ActivityLog activityLog = 1;      
 }
