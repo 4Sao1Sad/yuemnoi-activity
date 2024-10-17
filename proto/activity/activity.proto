@@ -5,11 +5,9 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/4Sao1Sad/yuemnoi-activity";
 
 message ActivityLog {
-		uint64 id = 1;
-		string logDetail = 2;
-		string user_id = 3;
-		google.protobuf.Timestamp timestamp = 4;
-    string formattedTimestamp = 5;
+		string logDetail = 1;
+		string user_id = 2;
+		google.protobuf.Timestamp timestamp = 3;
 }
 
 message CreateActivityLogRequest {

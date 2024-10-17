@@ -20,11 +20,15 @@ func NewActivityLogRepository(db *gorm.DB) ActivityLogRepository {
 	return &ActivityLogRepositoryImpl{db}
 }
 
+func formatTimestamp(t time.Time) string {
+	return t.Format("2006-01-02 15:04:05")
+}
+
 func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id string) (*model.ActivityLog, error) {
 	activityLog := model.ActivityLog{
 		LogDetail: logdetail,
 		UserId:      user_id,
-		Timestamp: time.Now(),
+		Timestamp: formatTimestamp(time.Now()),
 	}
 	err := r.db.Create(&activityLog).Error
 	if err != nil {
