@@ -9,6 +9,7 @@ message ActivityLog {
 		string logDetail = 2;
 		string user_id = 3;
 		google.protobuf.Timestamp timestamp = 4;
+    string formattedTimestamp = 5;
 }
 
 message CreateActivityLogRequest {
