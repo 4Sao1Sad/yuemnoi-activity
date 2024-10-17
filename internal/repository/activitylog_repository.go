@@ -21,7 +21,7 @@ func NewActivityLogRepository(db *gorm.DB) ActivityLogRepository {
 }
 
 func formatTimestamp(t time.Time) string {
-	return t.Format("2006-01-02 15:04:05")
+	return t.Format("2006-01-02 15:04:05.00000")
 }
 
 func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id string) (*model.ActivityLog, error) {
