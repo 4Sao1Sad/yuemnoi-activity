@@ -7,7 +7,7 @@ option go_package = "github.com/4Sao1Sad/yuemnoi-activity";
 message ActivityLog {
 		string logDetail = 1;
 		string user_id = 2;
-		google.protobuf.Timestamp timestamp = 3;
+		string timestamp = 3;
 }
 
 message CreateActivityLogRequest {
