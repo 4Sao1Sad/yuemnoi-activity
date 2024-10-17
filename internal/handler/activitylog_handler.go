@@ -24,7 +24,7 @@ func NewActivityLogGRPC(repo repository.ActivityLogRepository) *ActivityLogGRPC 
 func (g *ActivityLogGRPC) CreateActivityLog(ctx context.Context, input *pb.CreateActivityLogRequest) (*pb.CreateActivityLogResponse, error) {
 	data := model.ActivityLog{
 			LogDetail: input.LogDetail,
-			UserId:    input.UserId,
+			UserId:    uint(input.UserId),
 	}
 
 	activityLog, err := g.repository.CreateActivityLog(data.LogDetail, data.UserId)
@@ -35,7 +35,7 @@ func (g *ActivityLogGRPC) CreateActivityLog(ctx context.Context, input *pb.Creat
 	resp := pb.CreateActivityLogResponse{
 			ActivityLog: &pb.ActivityLog{
 					LogDetail: activityLog.LogDetail,
-					UserId:    activityLog.UserId,
+					UserId:    uint64(activityLog.UserId),
 					Timestamp: activityLog.Timestamp,
 			},
 	}
@@ -44,7 +44,7 @@ func (g *ActivityLogGRPC) CreateActivityLog(ctx context.Context, input *pb.Creat
 }
 
 func (g *ActivityLogGRPC) ViewActivityHistory(ctx context.Context, input *pb.ViewActivityHistoryRequest) (*pb.ViewActivityHistoryResponse, error) {
-	history, err := g.repository.ViewActivityHistoryByUserId(input.UserId)
+	history, err := g.repository.ViewActivityHistoryByUserId(uint(input.UserId))
     if err != nil {
         return nil, err
     }
@@ -53,7 +53,7 @@ func (g *ActivityLogGRPC) ViewActivityHistory(ctx context.Context, input *pb.Vie
     for _, logEntry := range *history {
 			activityHistory = append(activityHistory, &pb.ActivityLog{
             LogDetail: logEntry.LogDetail,
-            UserId:    logEntry.UserId,
+            UserId:    uint64(logEntry.UserId),
             Timestamp: logEntry.Timestamp,
         })
     }
