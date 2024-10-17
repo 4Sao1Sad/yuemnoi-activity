@@ -6,13 +6,13 @@ option go_package = "github.com/4Sao1Sad/yuemnoi-activity";
 
 message ActivityLog {
 		string logDetail = 1;
-		string user_id = 2;
+		uint64 user_id = 2;
 		string timestamp = 3;
 }
 
 message CreateActivityLogRequest {
     string logDetail = 1;
-		string user_id = 2;       
+		uint64 user_id = 2;       
 }
 
 message CreateActivityLogResponse {
@@ -20,7 +20,7 @@ message CreateActivityLogResponse {
 }
 
 message ViewActivityHistoryRequest {
-		string user_id = 1;       
+		uint64 user_id = 1;       
 }
 
 message ViewActivityHistoryResponse {
