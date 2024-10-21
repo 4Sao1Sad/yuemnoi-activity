@@ -13,15 +13,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
-	reflection "google.golang.org/grpc/reflection"
 )
 
 var MongoClient *mongo.Client
 
 // InitDB initializes a connection to the MongoDB database
 func InitDB(cfg *config.Config) (*mongo.Database, error) {
-	// Build the MongoDB connection URI
-
 	// Connect to MongoDB
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(cfg.Mongo.Url).SetServerAPIOptions(serverAPI)
@@ -30,11 +27,7 @@ func InitDB(cfg *config.Config) (*mongo.Database, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
+
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
@@ -68,9 +61,6 @@ func ServerInit(cfg *config.Config, db *mongo.Database) error {
 
 	// Register the ActivityLogService
 	activity.RegisterActivityLogServiceServer(grpcServer, activityLogServer)
-
-	// Enable gRPC reflection for tools like grpcurl
-	reflection.Register(grpcServer)
 
 	err = grpcServer.Serve(listen)
 	if err != nil {

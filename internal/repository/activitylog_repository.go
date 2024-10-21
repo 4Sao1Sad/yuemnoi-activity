@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/model"
@@ -14,8 +15,8 @@ type ActivityLogRepositoryImpl struct {
 }
 
 type ActivityLogRepository interface {
-	CreateActivityLog(logdetail string, user_id uint) (*model.ActivityLog, error)
-	ViewActivityHistoryByUserId(user_id uint) (*[]model.ActivityLog, error)
+	CreateActivityLog(ctx context.Context, logdetail string, user_id uint) (*model.ActivityLog, error)
+	ViewActivityHistoryByUserId(ctx context.Context, user_id uint) (*[]model.ActivityLog, error)
 }
 
 func NewActivityLogRepository(db *mongo.Database) ActivityLogRepository {
@@ -27,7 +28,7 @@ func formatTimestamp(t time.Time) string {
 	return t.Format("2006-01-02 15:04:05.00000")
 }
 
-func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id uint) (*model.ActivityLog, error) {
+func (r ActivityLogRepositoryImpl) CreateActivityLog(ctx context.Context, logdetail string, user_id uint) (*model.ActivityLog, error) {
 	activityLog := model.ActivityLog{
 		LogDetail: logdetail,
 		UserId:    user_id,
@@ -35,26 +36,27 @@ func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id u
 	}
 
 	// Insert into MongoDB
-	_, err := r.db.InsertOne(context.TODO(), activityLog)
+	_, err := r.db.InsertOne(ctx, activityLog)
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 
 	return &activityLog, nil
 }
 
-func (r ActivityLogRepositoryImpl) ViewActivityHistoryByUserId(user_id uint) (*[]model.ActivityLog, error) {
+func (r ActivityLogRepositoryImpl) ViewActivityHistoryByUserId(ctx context.Context, user_id uint) (*[]model.ActivityLog, error) {
 	var activityHistory []model.ActivityLog
 
 	// Query for the user activity history
 	filter := bson.M{"user_id": user_id}
-	cursor, err := r.db.Find(context.TODO(), filter)
+	cursor, err := r.db.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	// Parse the results into activityHistory
-	if err = cursor.All(context.TODO(), &activityHistory); err != nil {
+	if err = cursor.All(ctx, &activityHistory); err != nil {
 		return nil, err
 	}
 
