@@ -21,16 +21,20 @@ var MongoClient *mongo.Client
 // InitDB initializes a connection to the MongoDB database
 func InitDB(cfg *config.Config) (*mongo.Database, error) {
 	// Build the MongoDB connection URI
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", cfg.Db.Username, cfg.Db.Password, cfg.Db.Host, cfg.Db.Port)
 
 	// Connect to MongoDB
-	clientOptions := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI(cfg.Mongo.Url).SetServerAPIOptions(serverAPI)
+	// Create a new client and connect to the server
+	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		log.Fatalf("failed to connect to MongoDB: %v", err)
-		return nil, err
+		panic(err)
 	}
-
+	defer func() {
+		if err = client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {

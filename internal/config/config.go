@@ -10,6 +10,10 @@ type Config struct {
 	AppName string `yaml:"app_name"`
 	Port    int32  `yaml:"port"`
 	Db      DB     `mapstructure:"DB"`
+	Mongo   Mongo  `mapstructure:"mongo"`
+}
+type Mongo struct {
+	Url string `yaml:"url" default:"mongodb://localhost:27017"`
 }
 
 type DB struct {

@@ -4,9 +4,11 @@ services:
     container_name: mongo_db
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: youruser
-      MONGO_INITDB_ROOT_PASSWORD: yourpassword
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
       MONGO_INITDB_DATABASE: activity-log
+      MONGO_INITDB_USERNAME: user
+      MONGO_INITDB_PASSWORD: user
     volumes:
       - mongo_data:/data/db
     ports:

@@ -1,8 +1,0 @@
-app_name: activity
-port: 8081
-db:
-  host: localhost
-  port: "27017"
-  username: youruser
-  password: yourpassword
-  database: activity-log
