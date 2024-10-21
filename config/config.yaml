@@ -2,7 +2,7 @@ app_name: activity
 port: 8081
 db:
   host: localhost
-  port: "5432"
+  port: "27017"
   username: youruser
   password: yourpassword
-  database: yourdbname
+  database: activity-log

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -9,31 +10,42 @@ import (
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/handler"
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/repository"
 	activity "github.com/4Sao1Sad/yuemnoi-activity/proto/activity"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	reflection "google.golang.org/grpc/reflection"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var MongoClient *mongo.Client
 
-// InitDB initializes a connection to the PostgreSQL database using GORM
-func InitDB(cfg *config.Config) {
-	// Format the DSN (Data Source Name) string for PostgreSQL
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
-		cfg.Db.Host, cfg.Db.Username, cfg.Db.Password, cfg.Db.Database, cfg.Db.Port)
+// InitDB initializes a connection to the MongoDB database
+func InitDB(cfg *config.Config) (*mongo.Database, error) {
+	// Build the MongoDB connection URI
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", cfg.Db.Username, cfg.Db.Password, cfg.Db.Host, cfg.Db.Port)
 
-	// Connect to the PostgreSQL database
-	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// Connect to MongoDB
+	clientOptions := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		log.Fatalf("failed to connect to MongoDB: %v", err)
+		return nil, err
 	}
 
-	log.Println("Database connection established")
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatalf("failed to ping MongoDB: %v", err)
+		return nil, err
+	}
+
+	log.Println("MongoDB connection established")
+	MongoClient = client // Store the client globally if needed
+
+	// Return the MongoDB database instance
+	return client.Database(cfg.Db.Database), nil
 }
 
-func ServerInit(cfg *config.Config, db *gorm.DB) error {
+func ServerInit(cfg *config.Config, db *mongo.Database) error {
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -43,12 +55,14 @@ func ServerInit(cfg *config.Config, db *gorm.DB) error {
 		listen.Close()
 	}()
 
-	fmt.Printf("Go gRPC server in port %v!", cfg.Port)
+	fmt.Printf("Go gRPC server on port %v!", cfg.Port)
 	grpcServer := grpc.NewServer()
-	// register
+
+	// Initialize the ActivityLog repository using MongoDB
 	activityLogRepo := repository.NewActivityLogRepository(db)
 	activityLogServer := handler.NewActivityLogGRPC(activityLogRepo)
-	// put register server here
+
+	// Register the ActivityLogService
 	activity.RegisterActivityLogServiceServer(grpcServer, activityLogServer)
 
 	// Enable gRPC reflection for tools like grpcurl

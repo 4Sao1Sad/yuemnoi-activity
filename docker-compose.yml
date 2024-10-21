@@ -1,16 +1,16 @@
 services:
   db:
-    image: postgres:14
-    container_name: postgres_db
+    image: mongo:6
+    container_name: mongo_db
     restart: always
     environment:
-      POSTGRES_USER: youruser
-      POSTGRES_PASSWORD: yourpassword
-      POSTGRES_DB: yourdbname
+      MONGO_INITDB_ROOT_USERNAME: youruser
+      MONGO_INITDB_ROOT_PASSWORD: yourpassword
+      MONGO_INITDB_DATABASE: activity-log
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongo_data:/data/db
     ports:
-      - "5432:5432"
+      - "27017:27017"
 
 volumes:
-  postgres_data:
+  mongo_data:

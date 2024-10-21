@@ -1,14 +1,16 @@
 package repository
 
 import (
+	"context"
 	"time"
 
 	"github.com/4Sao1Sad/yuemnoi-activity/internal/model"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ActivityLogRepositoryImpl struct {
-	db *gorm.DB
+	db *mongo.Collection
 }
 
 type ActivityLogRepository interface {
@@ -16,8 +18,9 @@ type ActivityLogRepository interface {
 	ViewActivityHistoryByUserId(user_id uint) (*[]model.ActivityLog, error)
 }
 
-func NewActivityLogRepository(db *gorm.DB) ActivityLogRepository {
-	return &ActivityLogRepositoryImpl{db}
+func NewActivityLogRepository(db *mongo.Database) ActivityLogRepository {
+	collection := db.Collection("activity_logs")
+	return &ActivityLogRepositoryImpl{collection}
 }
 
 func formatTimestamp(t time.Time) string {
@@ -27,10 +30,12 @@ func formatTimestamp(t time.Time) string {
 func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id uint) (*model.ActivityLog, error) {
 	activityLog := model.ActivityLog{
 		LogDetail: logdetail,
-		UserId:      user_id,
+		UserId:    user_id,
 		Timestamp: formatTimestamp(time.Now()),
 	}
-	err := r.db.Create(&activityLog).Error
+
+	// Insert into MongoDB
+	_, err := r.db.InsertOne(context.TODO(), activityLog)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +45,16 @@ func (r ActivityLogRepositoryImpl) CreateActivityLog(logdetail string, user_id u
 
 func (r ActivityLogRepositoryImpl) ViewActivityHistoryByUserId(user_id uint) (*[]model.ActivityLog, error) {
 	var activityHistory []model.ActivityLog
-	err := r.db.Where("user_id = ?", user_id).Find(&activityHistory).Error
+
+	// Query for the user activity history
+	filter := bson.M{"user_id": user_id}
+	cursor, err := r.db.Find(context.TODO(), filter)
 	if err != nil {
+		return nil, err
+	}
+
+	// Parse the results into activityHistory
+	if err = cursor.All(context.TODO(), &activityHistory); err != nil {
 		return nil, err
 	}
 
