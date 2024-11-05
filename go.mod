@@ -1,6 +1,6 @@
 module github.com/4Sao1Sad/yuemnoi-activity
 
-go 1.21.6
+go 1.22.1
 
 require (
 	github.com/spf13/viper v1.19.0
